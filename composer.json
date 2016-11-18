@@ -1,0 +1,23 @@
+{
+  "name": "raframework/rapkg",
+  "description": "The RA framework packages.",
+  "keywords": ["ra", "rapkg"],
+  "license": "MIT",
+  "homepage": "http://raframework.com",
+  "authors": [
+    {
+      "name": "coderd"
+    }
+  ],
+  "require": {
+    "php": ">=5.5.30"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "4.8.*"
+  },
+  "autoload": {
+    "psr-4": {
+      "Rapkg\\": "src/Rapkg/"
+    }
+  }
+}

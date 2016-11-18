@@ -1,0 +1,17 @@
+{
+  "name": "rapkg/validation",
+  "description": "The RA framework validation package.",
+  "authors": [
+    {
+      "name": "coderd"
+    }
+  ],
+  "require": {
+    "php": ">=5.5.30"
+  },
+  "autoload": {
+    "psr-4": {
+      "Rapkg\\Validation\\": ""
+    }
+  }
+}
