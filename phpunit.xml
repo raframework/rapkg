@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit verbose="true"
+         bootstrap="tests/bootstrap.php"
+         color="always">
+    <testsuites>
+        <testsuite name="validation">
+            <directory>./tests/Validation/</directory>
+        </testsuite>
+    </testsuites>
+</phpunit>
