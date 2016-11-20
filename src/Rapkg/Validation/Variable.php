@@ -58,4 +58,9 @@ class Variable
     {
         return self::$defaultRuleMessages;
     }
+
+    public static function ruleExists($rule)
+    {
+        return array_key_exists($rule, self::$defaultRuleMessages);
+    }
 }

@@ -30,7 +30,7 @@ class Validator
      *
      * @var MessageInterface
      */
-    protected static $globalMessage;
+    protected static $globalMessageInstance;
 
     /**
      * The array of rule messages.
@@ -84,8 +84,8 @@ class Validator
     protected function mergeMessages(array $customMessages = [], array $attributes = [])
     {
         $globalMessages = [];
-        if (self::$globalMessage instanceof MessageInterface) {
-            $globalMessages = self::$globalMessage->getMessages();
+        if (self::$globalMessageInstance instanceof MessageInterface) {
+            $globalMessages = self::$globalMessageInstance->getMessages();
         }
 
         // Merge rule messages
@@ -129,11 +129,11 @@ class Validator
     /**
      * Set global message instance
      *
-     * @param MessageInterface $globalMessage
+     * @param MessageInterface $globalMessageInstance
      */
-    public static function setGlobalMessage(MessageInterface $globalMessage)
+    public static function setGlobalMessageInstance(MessageInterface $globalMessageInstance)
     {
-        self::$globalMessage = $globalMessage;
+        self::$globalMessageInstance = $globalMessageInstance;
     }
 
     /**
@@ -185,6 +185,10 @@ class Validator
     protected function validate($attribute, $rule)
     {
         list($rule, $parameters) = $this->parseRule($rule);
+
+        if (!Variable::ruleExists($rule)) {
+            throw new \InvalidArgumentException("validation: rule '$rule' does not exists.");
+        }
 
         $value = $this->getValue($attribute);
         $method = 'validate' . self::studly($rule);
@@ -331,6 +335,10 @@ class Validator
 
     protected function validateAlphaNum($attribute, $value)
     {
+        if (!is_string($value) && !is_numeric($value)) {
+            return false;
+        }
+
         return preg_match('/^[0-9a-zA-Z]+$/', $value);
     }
 
