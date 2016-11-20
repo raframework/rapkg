@@ -26,7 +26,7 @@ class Validator
     protected $rules;
 
     /**
-     * The interface to retrieve array of global messages.
+     * The instance to retrieve array of global messages.
      *
      * @var MessageInterface
      */
@@ -76,36 +76,36 @@ class Validator
     }
 
     /**
-     * Merge rule messages & custom message & attributes
+     * Merge rule messages & custom messages & attributes
      *
      * @param array $customMessages
      * @param array $attributes
      */
     protected function mergeMessages(array $customMessages = [], array $attributes = [])
     {
-        $globalMessage = [];
+        $globalMessages = [];
         if (self::$globalMessage instanceof MessageInterface) {
-            $globalMessage = self::$globalMessage->getMessages();
+            $globalMessages = self::$globalMessage->getMessages();
         }
 
         // Merge rule messages
         $ruleMessages = Variable::getDefaultRuleMessages();
-        if (isset($globalMessage['rule_messages']) && is_array($globalMessage['rule_messages'])) {
-            $ruleMessages = array_merge($ruleMessages, $globalMessage['rule_messages']);
+        if (isset($globalMessages['rule_messages']) && is_array($globalMessages['rule_messages'])) {
+            $ruleMessages = array_merge($ruleMessages, $globalMessages['rule_messages']);
         }
         $this->ruleMessages = $ruleMessages;
 
         // Merge custom messages
-        if (isset($globalMessage['custom_messages']) && is_array($globalMessage['custom_messages'])) {
-            $this->customMessages = $globalMessage['custom_messages'];
+        if (isset($globalMessages['custom_messages']) && is_array($globalMessages['custom_messages'])) {
+            $this->customMessages = array_merge($this->customMessages, $globalMessages['custom_messages']);
         }
         if ($customMessages && is_array($customMessages)) {
             $this->customMessages = array_merge($this->customMessages, $customMessages);
         }
 
         // Merge attributes
-        if (isset($globalMessage['attributes']) && is_array($globalMessage['attributes'])) {
-            $this->attributes = $globalMessage['attributes'];
+        if (isset($globalMessages['attributes']) && is_array($globalMessages['attributes'])) {
+            $this->attributes = array_merge($this->attributes, $globalMessages['attributes']);
         }
         if ($attributes && is_array($attributes)) {
             $this->attributes = array_merge($this->attributes, $attributes);
@@ -409,7 +409,7 @@ class Validator
         return false;
     }
 
-    protected function validateMobile($attribute, $value)
+    protected function validateCnMobile($attribute, $value)
     {
         if (preg_match('/^1[34578]\d{9}$/', $value)) {
             return true;
@@ -417,7 +417,7 @@ class Validator
         return false;
     }
 
-    protected function validateIdNumber($attribute, $value)
+    protected function validateCnIdCard($attribute, $value)
     {
         $pattern = "/^([1-6][0-9]{5})([1][9]|[2][0])[0-9]{2}([0][1-9]|[1][0-2])([0][1-9]|([1]|[2])[0-9]|[3][0-1])[0-9]{3}[0-9xX]$/";
         if (preg_match($pattern, $value)) {
@@ -477,6 +477,7 @@ class Validator
             return count($value);
         }
 
+        // Take it as a string
         return mb_strlen($value, 'UTF-8');
     }
 
@@ -506,7 +507,7 @@ class Validator
      * @param  string  $value
      * @return string
      */
-    private static function studly($value)
+    protected static function studly($value)
     {
         $key = $value;
 

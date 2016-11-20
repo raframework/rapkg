@@ -47,8 +47,8 @@ class Variable
 
         'ip' => 'The :attribute must be a valid IP address.',
         'email' => 'The :attribute must be a valid email address.',
-        'mobile' => 'The :attribute must be a valid mobile phone number.',
-        'id_number' => 'The :attribute must be a valid id card number',
+        'cn_mobile' => 'The :attribute must be a valid mobile phone number.',
+        'cn_id_card' => 'The :attribute must be identity card of the People\'s Republic of China.',
 
         'date_format' => 'The :attribute field does not match the format: :date_format',
         'regex' => 'The :attribute format is invalid.',
