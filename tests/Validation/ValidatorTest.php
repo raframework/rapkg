@@ -15,6 +15,12 @@ class ValidatorTest extends PHPUnit_Framework_TestCase
     const TYPE_STRING = 'string';
     const TYPE_ARRAY = 'array';
 
+    protected function setUp()
+    {
+        parent::setUp();
+
+        Validator::unsetGlobalMessageInstance();
+    }
 
     /**
      * @dataProvider dataProvider
@@ -1267,4 +1273,14 @@ class ValidatorTest extends PHPUnit_Framework_TestCase
         ];
     }
 
+    public function testMultiRules()
+    {
+        // passes
+        $validator = Validator::make(['foo' => 'bar'], ['foo' => 'required|string|max:5']);
+        $this->assertTrue($validator->passes());
+
+        // fails
+        $validator = Validator::make(['foo' => 'bar'], ['foo' => 'required|string|max:2']);
+        $this->assertTrue($validator->fails());
+    }
 }

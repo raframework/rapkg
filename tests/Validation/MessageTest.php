@@ -28,7 +28,7 @@ class MessageTest extends PHPUnit_Framework_TestCase
         );
 
         // Message from global custom_messages
-        $attribute = 'foo_custom';
+        $attribute = 'foo_global_custom';
         $rule = 'integer';
         $validator = Validator::make([$attribute => 1.1], [$attribute => $rule]);
 
@@ -39,7 +39,7 @@ class MessageTest extends PHPUnit_Framework_TestCase
         );
 
         // Rename attribute name in message
-        $attribute = 'foo_attr';
+        $attribute = 'foo_global_attr';
         $rule = 'integer';
         $validator = Validator::make([$attribute => 1.1], [$attribute => $rule]);
 
@@ -49,6 +49,49 @@ class MessageTest extends PHPUnit_Framework_TestCase
             str_replace(':attribute', $newAttribute, $integerRuleMessageInstance->getMessages()['rule_messages'][$rule]),
             $validator->getMessage()
         );
+
+        // Message from custom_messages
+        $attribute = 'foo_custom';
+        $rule = 'integer';
+        $customMessage = 'The :attribute must be an integer(from custom message)';
+        $validator = Validator::make([$attribute => 1.1], [$attribute => $rule], [$attribute => [$rule => $customMessage]]);
+
+        $this->assertFalse($validator->passes());
+        $this->assertEquals(
+            str_replace(':attribute', $attribute, $customMessage),
+            $validator->getMessage()
+        );
+
+        // Message from custom_messages
+        $attribute = 'foo_custom';
+        $rule = 'integer';
+        $customMessage = 'The :attribute must be an integer(from custom message)';
+        $validator = Validator::make([$attribute => 1.1], [$attribute => $rule], [$attribute => $customMessage]);
+
+        $this->assertFalse($validator->passes());
+        $this->assertEquals(
+            str_replace(':attribute', $attribute, $customMessage),
+            $validator->getMessage()
+        );
+
+        // Rename attribute name in custom attributes
+        $attribute = 'foo_custom';
+        $rule = 'integer';
+        $customMessage = 'The :attribute must be an integer(from custom message)';
+        $validator = Validator::make([$attribute => 1.1], [$attribute => $rule], [$attribute => $customMessage], [$attribute => $attribute . "foo"]);
+        $attribute = $attribute . "foo";
+        $this->assertFalse($validator->passes());
+        $this->assertEquals(
+            str_replace(':attribute', $attribute, $customMessage),
+            $validator->getMessage()
+        );
+    }
+
+    protected function tearDown()
+    {
+        parent::tearDown();
+
+        Validator::unsetGlobalMessageInstance();
     }
 }
 
@@ -62,13 +105,16 @@ class integerRuleMessage implements MessageInterface
             ],
 
             'custom_messages' => [
+                'foo_global_custom' => [
+                    'integer' => 'The :attribute must be an integer(from global custom message)'
+                ],
                 'foo_custom' => [
                     'integer' => 'The :attribute must be an integer(from global custom message)'
-                ]
+                ],
             ],
 
             'attributes' => [
-                'foo_attr' => 'foo_attr_beauty'
+                'foo_global_attr' => 'foo_attr_beauty'
             ],
         ];
     }

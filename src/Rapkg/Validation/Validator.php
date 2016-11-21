@@ -137,6 +137,14 @@ class Validator
     }
 
     /**
+     * Unset global message instance
+     */
+    public static function unsetGlobalMessageInstance()
+    {
+        self::$globalMessageInstance = null;
+    }
+
+    /**
      * Determine if the data fails the validation rules.
      *
      * @return bool
