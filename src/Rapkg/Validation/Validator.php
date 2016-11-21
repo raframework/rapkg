@@ -221,7 +221,7 @@ class Validator
             } else if ($rule == 'between') {
                 $message = strtr($message, [':min' => $parameters[0], ':max' => $parameters[1]]);
             } else if ($rule == 'in') {
-                $message = str_replace(':values', $parameters[0], $message);
+                $message = str_replace(':values', implode(',', $parameters), $message);
             } else if ($rule == 'contain') {
                 $message = str_replace(':phrase', $parameters[0], $message);
             } else if ($rule == 'date_format') {

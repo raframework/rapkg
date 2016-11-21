@@ -49,7 +49,19 @@ class ValidatorTest extends PHPUnit_Framework_TestCase
             $this->maxProvider(),
             $this->minProvider(),
             $this->betweenProvider(),
-            $this->sizeProvider()
+            $this->sizeProvider(),
+
+            $this->inProvider(),
+            $this->containProvider(),
+            $this->noSpaceProvider(),
+
+            $this->ipProvider(),
+            $this->emailProvider(),
+            $this->cnMobileProvider(),
+            $this->cnIdCardProvider(),
+
+            $this->dateFormatProvider(),
+            $this->regexProvider()
         );
     }
 
@@ -905,6 +917,352 @@ class ValidatorTest extends PHPUnit_Framework_TestCase
                 [$attribute => "$rule:$size"],
                 false,
                 $this->sizeFailsMessage($attribute, self::TYPE_ARRAY, $size)
+            ],
+        ];
+    }
+
+    private function inFailsMessage($attribute, $inValues)
+    {
+        $message = Variable::getDefaultRuleMessages()["in"];
+        $message = str_replace(':attribute', $attribute, $message);
+        $message = str_replace(':values', $inValues, $message);
+
+        return $message;
+    }
+
+    private function inProvider()
+    {
+        $attribute = 'foo';
+        $rule = 'in';
+
+        return [
+            // passes
+            [
+                [$attribute => 1],
+                [$attribute => "$rule:1,2"],
+                true,
+            ],
+            [
+                [$attribute => "a"],
+                [$attribute => "$rule:a,b"],
+                true,
+            ],
+
+
+            // fails
+            [
+                [$attribute => 0],
+                [$attribute => "$rule:1,2"],
+                false,
+                $this->inFailsMessage($attribute, "1,2")
+            ],
+            [
+                [$attribute => "c"],
+                [$attribute => "$rule:a,b"],
+                false,
+                $this->inFailsMessage($attribute, "a,b")
+            ],
+        ];
+    }
+
+    private function containFailsMessage($attribute, $phrase)
+    {
+        $message = Variable::getDefaultRuleMessages()["contain"];
+        $message = str_replace(':attribute', $attribute, $message);
+        $message = str_replace(':phrase', $phrase, $message);
+
+        return $message;
+    }
+
+    private function containProvider()
+    {
+        $attribute = 'foo';
+        $rule = 'contain';
+        $phrase = '{%code}';
+
+        return [
+            // passes
+            [
+                [$attribute => '{%code}'],
+                [$attribute => "$rule:$phrase"],
+                true,
+            ],
+            [
+                [$attribute => '1 {%code} '],
+                [$attribute => "$rule:$phrase"],
+                true,
+            ],
+
+
+            // fails
+            [
+                [$attribute => '{%code'],
+                [$attribute => "$rule:$phrase"],
+                false,
+                $this->containFailsMessage($attribute, $phrase)
+            ],
+        ];
+    }
+
+    private function noSpaceProvider()
+    {
+        $attribute = 'foo';
+        $rule = 'no_space';
+
+        return [
+            // passes
+            [
+                [$attribute => 'abc'],
+                [$attribute => $rule],
+                true,
+            ],
+            [
+                [$attribute => 123],
+                [$attribute => $rule],
+                true,
+            ],
+
+
+            // fails
+            [
+                [$attribute => ' abc'],
+                [$attribute => $rule],
+                false,
+                $this->failsMessage($rule, $attribute)
+            ],
+        ];
+    }
+
+    private function ipProvider()
+    {
+        $attribute = 'foo';
+        $rule = 'ip';
+
+        return [
+            // passes
+            [
+                [$attribute => '127.0.0.1'],
+                [$attribute => $rule],
+                true,
+            ],
+
+
+            // fails
+            [
+                [$attribute => '127.0.0'],
+                [$attribute => $rule],
+                false,
+                $this->failsMessage($rule, $attribute)
+            ],
+        ];
+    }
+
+    private function emailProvider()
+    {
+        $attribute = 'foo';
+        $rule = 'email';
+
+        return [
+            // passes
+            [
+                [$attribute => 'abc@gmail.com'],
+                [$attribute => $rule],
+                true,
+            ],
+            [
+                [$attribute => 'ab.c@gmail.com'],
+                [$attribute => $rule],
+                true,
+            ],
+            [
+                [$attribute => 'ab-c@gmail.com'],
+                [$attribute => $rule],
+                true,
+            ],
+            [
+                [$attribute => 'ab_c@gmail.com'],
+                [$attribute => $rule],
+                true,
+            ],
+            [
+                [$attribute => 'ab_c@gmail.com.cn'],
+                [$attribute => $rule],
+                true,
+            ],
+
+
+
+            // fails
+            [
+                [$attribute => 'abcgmail.com'],
+                [$attribute => $rule],
+                false,
+                $this->failsMessage($rule, $attribute)
+            ],
+            [
+                [$attribute => '-abc@gmail.com'],
+                [$attribute => $rule],
+                false,
+                $this->failsMessage($rule, $attribute)
+            ],
+        ];
+    }
+
+    private function cnMobileProvider()
+    {
+        $attribute = 'foo';
+        $rule = 'cn_mobile';
+
+        return [
+            // passes
+            [
+                [$attribute => '13488888888'],
+                [$attribute => $rule],
+                true,
+            ],
+            [
+                [$attribute => '14488888888'],
+                [$attribute => $rule],
+                true,
+            ],
+            [
+                [$attribute => '15488888888'],
+                [$attribute => $rule],
+                true,
+            ],
+            [
+                [$attribute => '17488888888'],
+                [$attribute => $rule],
+                true,
+            ],
+            [
+                [$attribute => '18488888888'],
+                [$attribute => $rule],
+                true,
+            ],
+
+
+            // fails
+            [
+                [$attribute => '134888888889'],
+                [$attribute => $rule],
+                false,
+                $this->failsMessage($rule, $attribute)
+            ],
+            [
+                [$attribute => '1348888887'],
+                [$attribute => $rule],
+                false,
+                $this->failsMessage($rule, $attribute)
+            ],
+            [
+                [$attribute => '12488888888'],
+                [$attribute => $rule],
+                false,
+                $this->failsMessage($rule, $attribute)
+            ],
+        ];
+    }
+
+    private function cnIdCardProvider()
+    {
+        $attribute = 'foo';
+        $rule = 'cn_id_card';
+
+        return [
+            // passes
+            [
+                [$attribute => '469005197511178247'],
+                [$attribute => $rule],
+                true,
+            ],
+
+            // fails
+            [
+                [$attribute => '46900519751117824'],
+                [$attribute => $rule],
+                false,
+                $this->failsMessage($rule, $attribute)
+            ],
+            [
+                [$attribute => '4690051975111782478'],
+                [$attribute => $rule],
+                false,
+                $this->failsMessage($rule, $attribute)
+            ],
+            [
+                [$attribute => '469005297511178247'],
+                [$attribute => $rule],
+                false,
+                $this->failsMessage($rule, $attribute)
+            ],
+        ];
+    }
+
+    private function dateFormatFailsMessage($attribute, $format)
+    {
+        $message = Variable::getDefaultRuleMessages()["date_format"];
+        $message = str_replace(':attribute', $attribute, $message);
+        $message = str_replace(':date_format', $format, $message);
+
+        return $message;
+    }
+
+    private function dateFormatProvider()
+    {
+        $attribute = 'foo';
+        $rule = 'date_format';
+        $format = 'Y-m-d H:i:s';
+
+        return [
+            // passes
+            [
+                [$attribute => '2016-11-21 10:29:00'],
+                [$attribute => "$rule:$format"],
+                true,
+            ],
+
+            // fails
+            [
+                [$attribute => '2016-11-21 10:29:0000'],
+                [$attribute => "$rule:$format"],
+                false,
+                $this->dateFormatFailsMessage($attribute, $format),
+            ],
+            [
+                [$attribute => '2016 11-21 10:29:00'],
+                [$attribute => "$rule:$format"],
+                false,
+                $this->dateFormatFailsMessage($attribute, $format),
+            ],
+        ];
+    }
+
+    private function regexProvider()
+    {
+        $attribute = 'foo';
+        $rule = 'regex';
+        $regex = '/[0-9]+/';
+
+        return [
+            // passes
+            [
+                [$attribute => '123'],
+                [$attribute => "$rule:$regex"],
+                true,
+            ],
+            [
+                [$attribute => 'a1c'],
+                [$attribute => "$rule:$regex"],
+                true,
+            ],
+
+            // fails
+            [
+                [$attribute => 'abc'],
+                [$attribute => "$rule:$regex"],
+                false,
+                $this->failsMessage($rule, $attribute)
             ],
         ];
     }
