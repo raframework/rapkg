@@ -68,7 +68,7 @@ class Validator
      * @param array $customMessages
      * @param array $attributes
      */
-    public function __construct(array $data, array $rules, array $customMessages = [], array $attributes = [])
+    public function __construct($data, array $rules, array $customMessages = [], array $attributes = [])
     {
         $this->data = $data;
         $this->rules = $this->explodeRules($rules);
@@ -121,7 +121,7 @@ class Validator
      * @param array $attributes
      * @return Validator
      */
-    public static function make(array $data, array $rules, array $customMessages = [], array $attributes = [])
+    public static function make($data, array $rules, array $customMessages = [], array $attributes = [])
     {
         return new Validator($data, $rules, $customMessages, $attributes);
     }
