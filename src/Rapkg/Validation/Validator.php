@@ -194,10 +194,6 @@ class Validator
     {
         list($rule, $parameters) = $this->parseRule($rule);
 
-        if (!Variable::ruleExists($rule)) {
-            throw new \InvalidArgumentException("validation: rule '$rule' does not exists.");
-        }
-
         $value = $this->getValue($attribute);
         $method = 'validate' . self::studly($rule);
 
@@ -261,6 +257,10 @@ class Validator
         if (strpos($rule, ':') !== false) {
             list($rule, $parameter) = explode(':', $rule, 2);
             $parameters = $this->parseParameters($rule, $parameter);
+        }
+
+        if (!Variable::ruleExists($rule)) {
+            throw new \InvalidArgumentException("validation: rule '$rule' not supported.");
         }
 
         return [$rule, $parameters];
@@ -507,8 +507,6 @@ class Validator
 
         return 'string';
     }
-
-
 
     /**
      * The cache of studly-cased words.
