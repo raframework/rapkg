@@ -6,5 +6,8 @@
         <testsuite name="validation">
             <directory>./tests/Validation/</directory>
         </testsuite>
+        <testsuite name="retry">
+            <directory>./tests/Retry/</directory>
+        </testsuite>
     </testsuites>
 </phpunit>
