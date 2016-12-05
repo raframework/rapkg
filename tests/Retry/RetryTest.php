@@ -48,6 +48,46 @@ class RetryTest extends PHPUnit_Framework_TestCase
         $this->assertSame(5, $return);
     }
 
+    public function testDefaultArgs()
+    {
+        $i = 0;
+        $options = [
+            'retries' => 2,
+            'interval' => 1.0,
+        ];
+
+        $func = function($arg1, $arg2 = 3) use (&$i) {
+            $i++;
+            return $arg1 + $arg2;
+        };
+
+        $args = [2];
+        $return = Retry::call($func, $options, $args);
+
+        $this->assertSame(1, $i);
+        $this->assertSame(5, $return);
+    }
+
+    public function testPassMoreArgs()
+    {
+        $i = 0;
+        $options = [
+            'retries' => 2,
+            'interval' => 1.0,
+        ];
+
+        $func = function($arg1, $arg2) use (&$i) {
+            $i++;
+            return $arg1 + $arg2;
+        };
+
+        $args = [2, 3, 8];
+        $return = Retry::call($func, $options, $args);
+
+        $this->assertSame(1, $i);
+        $this->assertSame(5, $return);
+    }
+
     public function testReturnByException()
     {
         $i = 0;
