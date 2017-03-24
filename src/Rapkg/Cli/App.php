@@ -20,6 +20,18 @@ class App
      */
     private $router;
 
+    /**
+     * App constructor.
+     *
+     * @param array $config Must be an associative in the format:
+     *                      [
+     *                          'command_namespace_prefix' => 'string',
+     *                          'commands' => [
+     *                              'string',
+     *                              ...
+     *                          ],
+     *                      ]
+     */
     public function __construct(array $config)
     {
         $this->parseConfig($config);
