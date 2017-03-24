@@ -1,2 +1,2 @@
 # rapkg
-The RA framework packages.
+The raframework packages.
