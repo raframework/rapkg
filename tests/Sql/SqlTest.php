@@ -10,13 +10,11 @@
 use Rapkg\Sql\DB;
 use Rapkg\Sql\Query;
 use Rapkg\Sql\RawQuery;
+use Rapkg\Config\ConfigInterface;
 
-class SqlTest extends PHPUnit_Framework_TestCase
+class DBConfig implements ConfigInterface
 {
-    /**
-     * @return DB
-     */
-    private function createDB()
+    public function get()
     {
         $database = 'test_gsql';
         $host = '127.0.0.1';
@@ -30,7 +28,18 @@ class SqlTest extends PHPUnit_Framework_TestCase
             'options' => []
         ];
 
-        return new DB($config);
+        return $config;
+    }
+}
+
+class SqlTest extends PHPUnit_Framework_TestCase
+{
+    /**
+     * @return DB
+     */
+    private function createDB()
+    {
+        return new DB(new DBConfig());
     }
 
     public function testSelect()

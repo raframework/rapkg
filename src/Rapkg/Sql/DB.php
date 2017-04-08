@@ -8,6 +8,8 @@
 namespace Rapkg\Sql;
 
 
+use Rapkg\Config\ConfigInterface;
+
 class DB
 {
     protected $defaultOptions = [
@@ -20,14 +22,19 @@ class DB
      */
     protected $pdo;
 
-    public function __construct(array $config)
+    /**
+     * DB constructor.
+     * @param ConfigInterface $config
+     */
+    public function __construct(ConfigInterface $config)
     {
-        $options = array_diff_key($this->defaultOptions, $config['options']) + $config['options'];
+        $conf = $config->get();
+        $options = array_diff_key($this->defaultOptions, $conf['options']) + $conf['options'];
 
         $this->pdo = new \PDO(
-            $config['dsn'],
-            $config['username'],
-            $config['password'],
+            $conf['dsn'],
+            $conf['username'],
+            $conf['password'],
             $options
         );
     }
