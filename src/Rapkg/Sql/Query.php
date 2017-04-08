@@ -94,7 +94,7 @@ class Query implements QueryInterface
      */
     public function insert(array $values)
     {
-        if (empty($columns)) {
+        if (empty($values)) {
             throw new \InvalidArgumentException('Query->insert() method requires at least 1 value, got 0');
         }
 
@@ -111,7 +111,7 @@ class Query implements QueryInterface
      */
     public function update(array $values)
     {
-        if (empty($columns)) {
+        if (empty($values)) {
             throw new \InvalidArgumentException('Query->update() method requires at least 1 value, got 0');
         }
 

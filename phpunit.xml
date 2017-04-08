@@ -9,5 +9,8 @@
         <testsuite name="retry">
             <directory>./tests/Retry/</directory>
         </testsuite>
+        <testsuite name="sql">
+            <directory>./tests/Sql/</directory>
+        </testsuite>
     </testsuites>
 </phpunit>
