@@ -12,5 +12,8 @@
         <testsuite name="sql">
             <directory>./tests/Sql/</directory>
         </testsuite>
+        <testsuite name="Model">
+            <directory>./tests/Model/</directory>
+        </testsuite>
     </testsuites>
 </phpunit>
