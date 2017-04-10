@@ -16,8 +16,7 @@ class DBConfig implements ConfigInterface
 {
     private static $conf = [
         'test_gsql' => [
-            'dsn' =>  "mysql:dbname=test_gsql;host=127.0.0.1;port=3306;"
-                . "charset=utf8",
+            'dsn' => "mysql:dbname=test_gsql;host=127.0.0.1;port=3306;charset=utf8",
             'username' => 'gsql_rw',
             'password' => '1',
             'options' => []
@@ -58,7 +57,7 @@ class UserTable extends Table
     public function get($id)
     {
         $result = $this->select(
-            $this->selectColumns, [self::COL_ID => $id], [], [0, 1]
+            $this->selectColumns, [self::COL_ID => $id], [0, 1]
         );
         if ($result) {
             return $result[0];
@@ -79,7 +78,7 @@ class UserTable extends Table
 
     private static $instance;
 
-    public static function instance()
+    public static function getInstance()
     {
         if (!self::$instance) {
             self::$instance = new self();
@@ -100,7 +99,7 @@ class UserRow extends Row
 
     public function __construct($id)
     {
-        self::$table = UserTable::instance();
+        self::$table = UserTable::getInstance();
 
         if (empty($id)) {
             throw new \InvalidArgumentException('Invalid argument id');
@@ -115,7 +114,7 @@ class UserRow extends Row
 
     public static function create($values = [])
     {
-        $id = UserTable::instance()->insert($values);
+        $id = UserTable::getInstance()->insert($values);
         if ($id) {
             return new UserRow($id);
         }
@@ -177,7 +176,7 @@ class RowTest extends \PHPUnit_Framework_TestCase
                 'updated_at' => time(),
             ]
         );
-        $this->assertTrue($result !== false);
+        $this->assertNotFalse($result);
 
         return $userRow;
     }
@@ -205,11 +204,12 @@ class RowTest extends \PHPUnit_Framework_TestCase
     {
         $result = $userRow->delete();
 
-        $this->assertTrue($result !== false);
+        $this->assertNotFalse($result);
     }
 
     private function randomEmail()
     {
-        return microtime(true) . mt_rand(10000, 99999) . '@gsql.com';
+        return microtime(true) . mt_rand(10000, 99999)
+            . '@gsql.com';
     }
 }

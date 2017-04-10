@@ -16,7 +16,7 @@ abstract class Table
     /**
      * @var Database
      */
-    private $db;
+    protected $db;
 
     /**
      * @var string
@@ -25,7 +25,7 @@ abstract class Table
 
     public function __construct()
     {
-        $this->db = Database::instance($this->dbConfig());
+        $this->db = Database::getInstance($this->dbConfig());
         $this->tableName = $this->tableName();
     }
 
@@ -42,7 +42,6 @@ abstract class Table
     public function select(
         array $columns,
         array $wheres = [],
-        array $orders = [],
         array $limit = []
     )
     {
@@ -50,7 +49,6 @@ abstract class Table
             ->table($this->tableName)
             ->select($columns)
             ->where($wheres)
-            ->orderBy($orders)
             ->limit($limit[0], $limit[1]);
 
         return $this->db->execReturningRows($q);

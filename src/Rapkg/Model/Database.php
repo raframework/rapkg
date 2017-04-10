@@ -19,7 +19,7 @@ class Database
      */
     protected $sqlDb = null;
 
-    protected function __construct(ConfigInterface $config)
+    private function __construct(ConfigInterface $config)
     {
         $this->sqlDb = new DB($config);
     }
@@ -40,7 +40,7 @@ class Database
      * @param ConfigInterface $config
      * @return Database
      */
-    public static function instance(ConfigInterface $config)
+    public static function getInstance(ConfigInterface $config)
     {
         $key = md5(json_encode($config->get()));
         if (!isset(self::$instances[$key])) {
