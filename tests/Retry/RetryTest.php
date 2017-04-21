@@ -18,10 +18,11 @@ class RetryTest extends PHPUnit_Framework_TestCase
             'retries' => 2,
             'interval' => 1.0,
         ];
-        Retry::call(function() use (&$i) {
-                $i++;
-                throw new RetryException();
-            },
+        Retry::call(function () use (&$i) {
+            $i++;
+            throw new RetryException();
+        },
+            [],
             $options
         );
 
@@ -36,13 +37,13 @@ class RetryTest extends PHPUnit_Framework_TestCase
             'interval' => 1.0,
         ];
 
-        $func = function($arg1, $arg2) use (&$i) {
+        $func = function ($arg1, $arg2) use (&$i) {
             $i++;
             return $arg1 + $arg2;
         };
 
         $args = [2, 3];
-        $return = Retry::call($func, $options, $args);
+        $return = Retry::call($func, $args, $options);
 
         $this->assertSame(1, $i);
         $this->assertSame(5, $return);
@@ -56,13 +57,13 @@ class RetryTest extends PHPUnit_Framework_TestCase
             'interval' => 1.0,
         ];
 
-        $func = function($arg1, $arg2 = 3) use (&$i) {
+        $func = function ($arg1, $arg2 = 3) use (&$i) {
             $i++;
             return $arg1 + $arg2;
         };
 
         $args = [2];
-        $return = Retry::call($func, $options, $args);
+        $return = Retry::call($func, $args, $options);
 
         $this->assertSame(1, $i);
         $this->assertSame(5, $return);
@@ -76,13 +77,13 @@ class RetryTest extends PHPUnit_Framework_TestCase
             'interval' => 1.0,
         ];
 
-        $func = function($arg1, $arg2) use (&$i) {
+        $func = function ($arg1, $arg2) use (&$i) {
             $i++;
             return $arg1 + $arg2;
         };
 
         $args = [2, 3, 8];
-        $return = Retry::call($func, $options, $args);
+        $return = Retry::call($func, $args, $options);
 
         $this->assertSame(1, $i);
         $this->assertSame(5, $return);
@@ -96,14 +97,14 @@ class RetryTest extends PHPUnit_Framework_TestCase
             'interval' => 1.0,
         ];
 
-        $func = function($arg1, $arg2) use (&$i) {
+        $func = function ($arg1, $arg2) use (&$i) {
             $i++;
             $return = $arg1 + $arg2;
             throw new RetryException($return);
         };
 
         $args = [2, 3];
-        $return = Retry::call($func, $options, $args);
+        $return = Retry::call($func, $args, $options);
 
         $this->assertSame(2, $i);
         $this->assertSame(5, $return);
@@ -120,10 +121,10 @@ class RetryTest extends PHPUnit_Framework_TestCase
             'interval' => 1.0,
         ];
 
-        $func = function() use (&$i) {
+        $func = function () use (&$i) {
             $i++;
         };
-        Retry::call($func, $options);
+        Retry::call($func, [], $options);
     }
 
     /**
@@ -138,10 +139,10 @@ class RetryTest extends PHPUnit_Framework_TestCase
             'interval' => 1.0,
         ];
 
-        $func = function() use (&$i) {
+        $func = function () use (&$i) {
             $i++;
         };
-        Retry::call($func, $options);
+        Retry::call($func, [], $options);
     }
 
     /**
@@ -156,10 +157,10 @@ class RetryTest extends PHPUnit_Framework_TestCase
             'interval' => 1.0,
         ];
 
-        $func = function() use (&$i) {
+        $func = function () use (&$i) {
             $i++;
         };
-        Retry::call($func, $options);
+        Retry::call($func, [], $options);
     }
 
     /**
@@ -173,10 +174,10 @@ class RetryTest extends PHPUnit_Framework_TestCase
             'retries' => 2,
         ];
 
-        $func = function() use (&$i) {
+        $func = function () use (&$i) {
             $i++;
         };
-        Retry::call($func, $options);
+        Retry::call($func, [], $options);
     }
 
     /**
@@ -191,10 +192,10 @@ class RetryTest extends PHPUnit_Framework_TestCase
             'interval' => 0.0,
         ];
 
-        $func = function() use (&$i) {
+        $func = function () use (&$i) {
             $i++;
         };
-        Retry::call($func, $options);
+        Retry::call($func, [], $options);
     }
 
     /**
@@ -209,9 +210,50 @@ class RetryTest extends PHPUnit_Framework_TestCase
             'interval' => 1,
         ];
 
-        $func = function() use (&$i) {
+        $func = function () use (&$i) {
             $i++;
         };
-        Retry::call($func, $options);
+        Retry::call($func, [], $options);
     }
+
+    public function testSetGlobalOptions()
+    {
+        $i = 0;
+        $options = [
+            'retries' => 2,
+            'interval' => 1.0,
+        ];
+        Retry::setGlobalOptions($options);
+
+        Retry::call(function () use (&$i) {
+            $i++;
+            throw new RetryException();
+        }
+        );
+
+        $this->assertSame(2, $i);
+    }
+
+    public function testSetGlobalOptionsWithDefaultOptions()
+    {
+        $i = 0;
+        $options = [
+            'retries' => 2,
+            'interval' => 1.0,
+        ];
+        Retry::setGlobalOptions($options);
+
+        Retry::call(function () use (&$i) {
+            $i++;
+            throw new RetryException();
+        },
+            [],
+            [
+                'retries' => 5,
+            ]
+        );
+
+        $this->assertSame(5, $i);
+    }
+
 }

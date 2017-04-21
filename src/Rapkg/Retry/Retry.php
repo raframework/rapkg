@@ -11,16 +11,23 @@ namespace Rapkg\Retry;
 class Retry
 {
     /**
+     * @var array
+     */
+    private static $globalOptions = [];
+
+
+    /**
      * Call the given function `$func`, and retry when the `RetryException` is thrown.
      *
-     * @param callable $func  function to be called
-     * @param array $options  options defines the `retries`(retry times) and `interval`(retry interval).
-     * @param array $args     args to be passed to the function `$func`
+     * @param callable $func function to be called
+     * @param array $args args to be passed to the function `$func`
+     * @param array $options options defines the `retries`(retry times) and `interval`(retry interval).
      * @return mixed
      */
-    public static function call(callable $func, array $options, array $args = [])
+    public static function call(callable $func, array $args = [], array $options = [])
     {
-        self::parseOptions($options);
+        $options = array_merge(self::$globalOptions, $options);
+        self::checkOptions($options);
         $retries = $options['retries'];
 
         beginning:
@@ -38,12 +45,23 @@ class Retry
     }
 
     /**
-     * Parse the options, throw `InvalidArgumentException` on invalid format value.
+     * Set global options.
+     *
+     * @param array $options
+     */
+    public static function setGlobalOptions(array $options)
+    {
+        self::checkOptions($options);
+        self::$globalOptions = $options;
+    }
+
+    /**
+     * Check the options, throw `InvalidArgumentException` on invalid format value.
      *
      * @param $options
      * @throws \InvalidArgumentException
      */
-    private static function parseOptions($options)
+    private static function checkOptions($options)
     {
         if (!isset($options['retries']) || !is_int($options['retries']) || $options['retries'] <= 0) {
             throw new \InvalidArgumentException(
