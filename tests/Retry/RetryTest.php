@@ -8,6 +8,7 @@
 
 use Rapkg\Retry\Retry;
 use Rapkg\Retry\RetryException;
+use Rapkg\Retry\RetryWithPreviousException;
 
 class RetryTest extends PHPUnit_Framework_TestCase
 {
@@ -18,15 +19,20 @@ class RetryTest extends PHPUnit_Framework_TestCase
             'retries' => 2,
             'interval' => 1.0,
         ];
-        Retry::call(function () use (&$i) {
+
+        $func = function() use (&$i) {
             $i++;
             throw new RetryException();
-        },
+        };
+
+        $result = Retry::call(
+            $func,
             [],
             $options
         );
 
         $this->assertSame(2, $i);
+        $this->assertNull($result);
     }
 
     public function testArgs()
@@ -34,10 +40,10 @@ class RetryTest extends PHPUnit_Framework_TestCase
         $i = 0;
         $options = [
             'retries' => 2,
-            'interval' => 1.0,
+            'interval' => 0.01,
         ];
 
-        $func = function ($arg1, $arg2) use (&$i) {
+        $func = function($arg1, $arg2) use (&$i) {
             $i++;
             return $arg1 + $arg2;
         };
@@ -54,10 +60,10 @@ class RetryTest extends PHPUnit_Framework_TestCase
         $i = 0;
         $options = [
             'retries' => 2,
-            'interval' => 1.0,
+            'interval' => 0.01,
         ];
 
-        $func = function ($arg1, $arg2 = 3) use (&$i) {
+        $func = function($arg1, $arg2 = 3) use (&$i) {
             $i++;
             return $arg1 + $arg2;
         };
@@ -74,10 +80,10 @@ class RetryTest extends PHPUnit_Framework_TestCase
         $i = 0;
         $options = [
             'retries' => 2,
-            'interval' => 1.0,
+            'interval' => 0.01,
         ];
 
-        $func = function ($arg1, $arg2) use (&$i) {
+        $func = function($arg1, $arg2) use (&$i) {
             $i++;
             return $arg1 + $arg2;
         };
@@ -94,10 +100,10 @@ class RetryTest extends PHPUnit_Framework_TestCase
         $i = 0;
         $options = [
             'retries' => 2,
-            'interval' => 1.0,
+            'interval' => 0.01,
         ];
 
-        $func = function ($arg1, $arg2) use (&$i) {
+        $func = function($arg1, $arg2) use (&$i) {
             $i++;
             $return = $arg1 + $arg2;
             throw new RetryException($return);
@@ -112,16 +118,16 @@ class RetryTest extends PHPUnit_Framework_TestCase
 
     /**
      * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage retry: the options.retries with type of integer and positive value should be provided
+     * @expectedExceptionMessage retry: the options.retries must be an integer with a positive value
      */
     public function testInvalidOptionRetriesEmpty()
     {
         $i = 0;
         $options = [
-            'interval' => 1.0,
+            'interval' => 0.01,
         ];
 
-        $func = function () use (&$i) {
+        $func = function() use (&$i) {
             $i++;
         };
         Retry::call($func, [], $options);
@@ -129,17 +135,17 @@ class RetryTest extends PHPUnit_Framework_TestCase
 
     /**
      * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage retry: the options.retries with type of integer and positive value should be provided
+     * @expectedExceptionMessage retry: the options.retries must be an integer with a positive value
      */
     public function testInvalidOptionRetriesZero()
     {
         $i = 0;
         $options = [
             'retries' => 0,
-            'interval' => 1.0,
+            'interval' => 0.01,
         ];
 
-        $func = function () use (&$i) {
+        $func = function() use (&$i) {
             $i++;
         };
         Retry::call($func, [], $options);
@@ -147,17 +153,17 @@ class RetryTest extends PHPUnit_Framework_TestCase
 
     /**
      * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage retry: the options.retries with type of integer and positive value should be provided
+     * @expectedExceptionMessage retry: the options.retries must be an integer with a positive value
      */
     public function testInvalidOptionRetriesInvalidType()
     {
         $i = 0;
         $options = [
             'retries' => 2.0,
-            'interval' => 1.0,
+            'interval' => 0.01,
         ];
 
-        $func = function () use (&$i) {
+        $func = function() use (&$i) {
             $i++;
         };
         Retry::call($func, [], $options);
@@ -165,7 +171,7 @@ class RetryTest extends PHPUnit_Framework_TestCase
 
     /**
      * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage retry: the options.interval with type of float and positive value should be provided
+     * @expectedExceptionMessage retry: the options.interval must be a float with a positive value
      */
     public function testInvalidOptionIntervalEmpty()
     {
@@ -174,7 +180,7 @@ class RetryTest extends PHPUnit_Framework_TestCase
             'retries' => 2,
         ];
 
-        $func = function () use (&$i) {
+        $func = function() use (&$i) {
             $i++;
         };
         Retry::call($func, [], $options);
@@ -182,7 +188,7 @@ class RetryTest extends PHPUnit_Framework_TestCase
 
     /**
      * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage retry: the options.interval with type of float and positive value should be provided
+     * @expectedExceptionMessage retry: the options.interval must be a float with a positive value
      */
     public function testInvalidOptionIntervalZero()
     {
@@ -192,7 +198,7 @@ class RetryTest extends PHPUnit_Framework_TestCase
             'interval' => 0.0,
         ];
 
-        $func = function () use (&$i) {
+        $func = function() use (&$i) {
             $i++;
         };
         Retry::call($func, [], $options);
@@ -200,7 +206,7 @@ class RetryTest extends PHPUnit_Framework_TestCase
 
     /**
      * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage retry: the options.interval with type of float and positive value should be provided
+     * @expectedExceptionMessage retry: the options.interval must be a float with a positive value
      */
     public function testInvalidOptionIntervalInvalidType()
     {
@@ -210,7 +216,7 @@ class RetryTest extends PHPUnit_Framework_TestCase
             'interval' => 1,
         ];
 
-        $func = function () use (&$i) {
+        $func = function() use (&$i) {
             $i++;
         };
         Retry::call($func, [], $options);
@@ -221,39 +227,133 @@ class RetryTest extends PHPUnit_Framework_TestCase
         $i = 0;
         $options = [
             'retries' => 2,
-            'interval' => 1.0,
+            'interval' => 0.01,
         ];
         Retry::setGlobalOptions($options);
 
-        Retry::call(function () use (&$i) {
+        $func = function() use (&$i) {
             $i++;
             throw new RetryException();
-        }
-        );
+        };
+
+        Retry::call($func);
 
         $this->assertSame(2, $i);
     }
 
-    public function testSetGlobalOptionsWithDefaultOptions()
+    public function testSetGlobalOptionsWithGivenOptions()
     {
         $i = 0;
         $options = [
             'retries' => 2,
-            'interval' => 1.0,
+            'interval' => 0.01,
         ];
         Retry::setGlobalOptions($options);
 
-        Retry::call(function () use (&$i) {
+        $func = function() use (&$i) {
             $i++;
             throw new RetryException();
-        },
+        };
+
+        Retry::call(
+            $func,
             [],
             [
-                'retries' => 5,
+                'retries' => 3,
             ]
         );
 
-        $this->assertSame(5, $i);
+        $this->assertSame(3, $i);
     }
 
+    /**
+     * @expectedException RuntimeException
+     */
+    public function testRetryWithPreviousException()
+    {
+        $i = 0;
+        $func = function() use (&$i) {
+            $i++;
+            throw new RetryWithPreviousException(new RuntimeException());
+        };
+
+        try {
+            Retry::call(
+                $func,
+                [],
+                [
+                    'retries' => 2,
+                    'interval' => 0.01,
+                ]
+            );
+        } finally {
+            $this->assertSame(2, $i);
+        }
+    }
+
+    /**
+     * @expectedException \Exception
+     */
+    public function testNoRetryExceptionButOtherException()
+    {
+        $i = 0;
+        $func = function() use (&$i) {
+            $i++;
+            throw new \Exception();
+        };
+
+        try {
+            Retry::call(
+                $func,
+                [],
+                [
+                    'retries' => 2,
+                    'interval' => 0.01,
+                ]
+            );
+        } finally {
+            $this->assertSame(1, $i);
+        }
+    }
+
+    public function testNoRetryExceptionButReturningValue()
+    {
+        $i = 0;
+        $func = function() use (&$i) {
+            $i++;
+            return $i;
+        };
+
+        $result = Retry::call(
+            $func,
+            [],
+            [
+                'retries' => 2,
+                'interval' => 0.01,
+            ]
+        );
+
+        $this->assertSame(1, $i);
+        $this->assertSame(1, $result);
+    }
+
+    public function testNoRetryExceptionButReturningNull()
+    {
+        $i = 0;
+        $func = function() use (&$i) {
+            $i++;
+        };
+
+        $result = Retry::call(
+            $func,
+            [],
+            [
+                'retries' => 2,
+                'interval' => 0.01,
+            ]
+        );
+
+        $this->assertSame(1, $i);
+        $this->assertNull($result);
+    }
 }

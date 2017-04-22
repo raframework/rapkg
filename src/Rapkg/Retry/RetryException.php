@@ -1,17 +1,15 @@
 <?php
 /**
  * User: coderd
- * Date: 2016/12/2
- * Time: 17:57
+ * Date: 2017/4/22
+ * Time: 上午12:38
  */
 
 namespace Rapkg\Retry;
 
 
-use Exception;
-
 /**
- * `RetryException` used to retry the called function while something wrong.
+ * `RetryException` used to retry the function called by `Retry::call()` on a value should be returned or none.
  * Throw a `RetryException` in the function called by `Retry::call` will trigger retries.
  *
  * Class RetryException
@@ -20,29 +18,22 @@ use Exception;
 class RetryException extends \Exception
 {
     /**
-     * Returned value set by the called function.
-     *
-     * @var mixed
+     * @var mixed Returned value set by the called function.
      */
     private $return = null;
 
     /**
-     * New RetryException instance.
-     *
      * RetryException constructor.
-     * @param mixed $return  returned value should be returned in the called function.
+     * @param mixed $return Returned value should be returned in the called function.
+     *                      It will be returned by `Retry::call()` when the last retry fails.
      */
     public function __construct($return = null)
     {
-        parent::__construct();
-
         $this->return = $return;
     }
 
     /**
-     * Return the returned value passed by the called function.
-     *
-     * @return mixed|null
+     * @return mixed|null Return the returned value passed by the called function.
      */
     public function getReturn()
     {

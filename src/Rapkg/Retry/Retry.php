@@ -15,14 +15,21 @@ class Retry
      */
     private static $globalOptions = [];
 
-
     /**
-     * Call the given function `$func`, and retry when the `RetryException` is thrown.
+     * Call the given function `$func`,
+     * retry when a `RetryException` or `RetryWithPreviousException` is thrown by `$func`,
+     * and return what `$func` returned.
      *
-     * @param callable $func function to be called
-     * @param array $args args to be passed to the function `$func`
-     * @param array $options options defines the `retries`(retry times) and `interval`(retry interval).
-     * @return mixed
+     * @param callable $func    Function to be called
+     * @param array    $args    Args to be passed to the function `$func`
+     * @param array    $options Options defines the `retries`(retry times) and `interval`(retry interval).
+     *                          It must be an associative in the format:
+     *                          [
+     *                              'retries' => int    retry times
+     *                              'interval' => float retry interval
+     *                          ]
+     * @return mixed            A value the called function `$func` returned.
+     * @throws \Exception
      */
     public static function call(callable $func, array $args = [], array $options = [])
     {
@@ -38,16 +45,26 @@ class Retry
             if ($retries == 0) {
                 return $e->getReturn();
             }
-
-            usleep((int)$options['interval'] * 1e6);
-            goto beginning;
+        } catch (RetryWithPreviousException $e) {
+            $retries--;
+            if ($retries == 0) {
+                throw $e->getPrevious();
+            }
         }
+
+        usleep((int)$options['interval'] * 1e6);
+        goto beginning;
     }
 
     /**
      * Set global options.
      *
-     * @param array $options
+     * @param array $options Options defines the `retries`(retry times) and `interval`(retry interval).
+     *                       It must be an associative in the format:
+     *                       [
+     *                           'retries' => int    retry times
+     *                           'interval' => float retry interval
+     *                       ]
      */
     public static function setGlobalOptions(array $options)
     {
@@ -56,7 +73,7 @@ class Retry
     }
 
     /**
-     * Check the options, throw `InvalidArgumentException` on invalid format value.
+     * Check the options, throw an `InvalidArgumentException` on invalid format value.
      *
      * @param $options
      * @throws \InvalidArgumentException
@@ -65,12 +82,12 @@ class Retry
     {
         if (!isset($options['retries']) || !is_int($options['retries']) || $options['retries'] <= 0) {
             throw new \InvalidArgumentException(
-                "retry: the options.retries with type of integer and positive value should be provided"
+                "retry: the options.retries must be an integer with a positive value"
             );
         }
         if (!isset($options['interval']) || !is_float($options['interval']) || $options['interval'] <= 0.0) {
             throw new \InvalidArgumentException(
-                "retry: the options.interval with type of float and positive value should be provided"
+                "retry: the options.interval must be a float with a positive value"
             );
         }
     }
