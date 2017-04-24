@@ -29,6 +29,7 @@ class RetryException extends \Exception
      */
     public function __construct($return = null)
     {
+        parent::__construct();
         $this->return = $return;
     }
 
