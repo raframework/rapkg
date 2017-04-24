@@ -42,12 +42,12 @@ class Retry
             return call_user_func_array($func, $args);
         } catch (RetryException $e) {
             $retries--;
-            if ($retries == 0) {
+            if ($retries === 0) {
                 return $e->getReturn();
             }
         } catch (RetryWithPreviousException $e) {
             $retries--;
-            if ($retries == 0) {
+            if ($retries === 0) {
                 throw $e->getPrevious();
             }
         }
@@ -65,6 +65,7 @@ class Retry
      *                           'retries' => int    retry times
      *                           'interval' => float retry interval
      *                       ]
+     * @throws \InvalidArgumentException
      */
     public static function setGlobalOptions(array $options)
     {
