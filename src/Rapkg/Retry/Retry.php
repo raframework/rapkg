@@ -82,12 +82,12 @@ class Retry
     {
         if (!isset($options['retries']) || !is_int($options['retries']) || $options['retries'] <= 0) {
             throw new \InvalidArgumentException(
-                "retry: the options.retries must be an integer with a positive value"
+                'retry: the options.retries must be an integer with a positive value'
             );
         }
         if (!isset($options['interval']) || !is_float($options['interval']) || $options['interval'] <= 0.0) {
             throw new \InvalidArgumentException(
-                "retry: the options.interval must be a float with a positive value"
+                'retry: the options.interval must be a float with a positive value'
             );
         }
     }
