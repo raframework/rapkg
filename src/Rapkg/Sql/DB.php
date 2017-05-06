@@ -39,7 +39,7 @@ class DB
         );
     }
 
-    public function ExecReturningRows(QueryInterface $query)
+    public function execReturningRows(QueryInterface $query)
     {
         $stmt = $this->pdo->prepare($query->string());
         if ($stmt === false) {
@@ -52,7 +52,11 @@ class DB
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
 
-    public function ExecWithoutReturningRows(QueryInterface $query)
+    /**
+     * @param QueryInterface $query
+     * @return array|bool
+     */
+    public function execWithoutReturningRows(QueryInterface $query)
     {
         $stmt = $this->pdo->prepare($query->string());
         if ($stmt === false) {
@@ -66,5 +70,25 @@ class DB
             'row_count' => $stmt->rowCount(),
             'last_insert_id' => $this->pdo->lastInsertId(),
         ];
+    }
+
+    public function beginTransaction()
+    {
+        return $this->pdo->beginTransaction();
+    }
+
+    public function rollback()
+    {
+        return $this->pdo->rollBack();
+    }
+
+    public function commit()
+    {
+        return $this->pdo->commit();
+    }
+
+    public function inTransaction()
+    {
+        return $this->pdo->inTransaction();
     }
 }

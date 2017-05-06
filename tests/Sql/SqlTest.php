@@ -63,7 +63,7 @@ class SqlTest extends PHPUnit_Framework_TestCase
                 'id' => 'DESC',
             ])->limit(0, 10);
 
-        $result = $db->ExecReturningRows($q);
+        $result = $db->execReturningRows($q);
         $this->assertNotEmpty($result);
     }
 
@@ -77,7 +77,7 @@ class SqlTest extends PHPUnit_Framework_TestCase
             [100000, 0]
         );
 
-        $result = $db->ExecReturningRows($q);
+        $result = $db->execReturningRows($q);
         $this->assertNotEmpty($result);
     }
 
@@ -99,7 +99,7 @@ class SqlTest extends PHPUnit_Framework_TestCase
                 'created_at' => $nowUnix,
             ]);
 
-        $result = $db->ExecWithoutReturningRows($q);
+        $result = $db->execWithoutReturningRows($q);
         $this->assertNotEmpty($result['last_insert_id']);
     }
 
@@ -115,7 +115,7 @@ class SqlTest extends PHPUnit_Framework_TestCase
             ]
         );
 
-        $result = $db->ExecWithoutReturningRows($q);
+        $result = $db->execWithoutReturningRows($q);
         $this->assertNotEmpty($result['last_insert_id']);
     }
 
@@ -135,7 +135,7 @@ class SqlTest extends PHPUnit_Framework_TestCase
                 'id' => 'DESC',
             ])->limit(0, 5);
 
-        $result = $db->ExecWithoutReturningRows($q);
+        $result = $db->execWithoutReturningRows($q);
         $this->assertNotEmpty($result['row_count']);
     }
 
@@ -150,7 +150,7 @@ class SqlTest extends PHPUnit_Framework_TestCase
             [mt_rand(0, 1), $nowUnix, 1]
         );
 
-        $result = $db->ExecWithoutReturningRows($q);
+        $result = $db->execWithoutReturningRows($q);
         $this->assertNotEmpty($result['row_count']);
     }
 
@@ -167,7 +167,7 @@ class SqlTest extends PHPUnit_Framework_TestCase
                 'id' => 'DESC',
             ])->limit(0, 1);
 
-        $result = $db->ExecWithoutReturningRows($q);
+        $result = $db->execWithoutReturningRows($q);
         $this->assertNotEmpty($result['row_count']);
     }
 
@@ -180,7 +180,68 @@ class SqlTest extends PHPUnit_Framework_TestCase
             [1]
         );
 
-        $result = $db->ExecWithoutReturningRows($q);
+        $result = $db->execWithoutReturningRows($q);
         $this->assertNotEmpty($result['row_count']);
+    }
+
+    public function testTransactionCommit()
+    {
+        $db = $this->createDB();
+        $beginTxResult = $db->beginTransaction();
+        $this->assertTrue($beginTxResult);
+
+        $nowUnix = time();
+        $q = new RawQuery(
+            "INSERT INTO `user` (`email`, `name`, `updated_at`, `created_at`) "
+            . "VALUES (?, ?, ?, ?)",
+            [
+                $this->randomEmail(), "", $nowUnix, $nowUnix
+            ]
+        );
+        $insertResult = $db->execWithoutReturningRows($q);
+        $this->assertNotFalse($insertResult);
+
+        $this->assertTrue($db->inTransaction());
+
+        $commitResult = $db->commit();
+        $this->assertTrue($commitResult);
+
+        $selectResult = $db->execReturningRows(
+            new RawQuery(
+                'SELECT * FROM `user` where `id` = ?',
+                [$insertResult['last_insert_id']])
+        );
+        $this->assertNotEmpty($selectResult);
+        $this->assertEquals($insertResult['last_insert_id'], $selectResult[0]['id']);
+    }
+
+    public function tesTransactionRollback()
+    {
+        $db = $this->createDB();
+        $beginTxResult = $db->beginTransaction();
+        $this->assertTrue($beginTxResult);
+
+        $nowUnix = time();
+        $q = new RawQuery(
+            "INSERT INTO `user` (`email`, `name`, `updated_at`, `created_at`) "
+            . "VALUES (?, ?, ?, ?)",
+            [
+                $this->randomEmail(), "", $nowUnix, $nowUnix
+            ]
+        );
+        $insertResult = $db->execWithoutReturningRows($q);
+        $this->assertNotFalse($insertResult);
+
+        $this->assertTrue($db->inTransaction());
+
+        $rollbackResult = $db->rollback();
+        $this->assertTrue($rollbackResult);
+
+        $selectResult = $db->execReturningRows(
+            new RawQuery(
+                'SELECT * FROM `user` where `id` = ?',
+                [$insertResult['last_insert_id']])
+        );
+        $this->assertEmpty($selectResult);
     }
 }

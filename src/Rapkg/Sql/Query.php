@@ -271,7 +271,7 @@ class Query implements QueryInterface
                     if (!is_array($value[1])) {
                         throw new \InvalidArgumentException('gsql: the value of IN operator should be an array');
                     }
-                    $vLen = strlen($value[1]);
+                    $vLen = count($value[1]);
                     $expr .= '`' . $column . '` IN (' . ltrim(str_repeat(', ?', $vLen), ', ') . ')';
                     $args = array_merge($args, $value[1]);
                 } else {
