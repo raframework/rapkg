@@ -15,5 +15,9 @@
         <testsuite name="Model">
             <directory>./tests/Model/</directory>
         </testsuite>
+        <testsuite name="Design">
+            <directory>./tests/Design/</directory>
+        </testsuite>
+
     </testsuites>
 </phpunit>
