@@ -10,10 +10,11 @@ namespace Rapkg\Sql;
 
 class Query implements QueryInterface
 {
-    const ACTION_SELECT = 1;
-    const ACTION_INSERT = 2;
-    const ACTION_UPDATE = 3;
-    const ACTION_DELETE = 4;
+    const ACTION_SELECT      = 1;
+    const ACTION_INSERT      = 2;
+    const ACTION_UPDATE      = 3;
+    const ACTION_DELETE      = 4;
+    const ACTION_BULK_INSERT = 5;
 
     protected $action;
 
@@ -104,6 +105,26 @@ class Query implements QueryInterface
         return $this;
     }
 
+    public function bulkInsert(array $columns, array $values)
+    {
+        if (empty($columns)) {
+            throw new \InvalidArgumentException(
+                'Query->bulkInsert() method requires at least 1 column, got 0'
+            );
+        }
+        if (empty($values)) {
+            throw new \InvalidArgumentException(
+                'Query->bulkInsert() method requires at least 1 value, got 0'
+            );
+        }
+
+        $this->action = self::ACTION_BULK_INSERT;
+        $this->columns = $columns;
+        $this->values = $values;
+
+        return $this;
+    }
+
     /**
      * @param array $values
      * @throws \InvalidArgumentException
@@ -164,9 +185,13 @@ class Query implements QueryInterface
             case self::ACTION_DELETE:
                 $this->processDelete();
                 break;
+            case self::ACTION_BULK_INSERT:
+                $this->processBulkInsert();
+                break;
             default:
                 throw new \RuntimeException(
-                    'gsql: you must call one of these methods: Query->[select(), insert(), update(), delete()] first'
+                    'gsql: you must call one of these methods: '
+                    . 'Query->[select(), insert(), update(), delete()] first'
                 );
         }
 
@@ -201,7 +226,7 @@ class Query implements QueryInterface
 
     protected function processInsert()
     {
-        $this->processUpdateValues();
+        $this->processInsertValues();
 
         $this->processed['query_string'] = 'INSERT INTO `' . $this->table . '` ' . $this->processed['value_expr'];
         $this->processed['args'] = $this->processed['value_args'];
@@ -252,6 +277,32 @@ class Query implements QueryInterface
         $this->processed['args'] = $this->processed['where_args'];
     }
 
+    protected function processBulkInsert()
+    {
+        $cols = [];
+        $columnCount = count($this->columns);
+        foreach ($this->columns as $column) {
+            $cols[] = '`' . $column . '`';
+        }
+
+        $args = [];
+        $exprList = [];
+        foreach ($this->values as $value) {
+            if (!is_array($value) || count($value) !== $columnCount) {
+                throw new \InvalidArgumentException(
+                    'gsql: invalid argument `$values` for bulkInsert()'
+                );
+            }
+            $exprList[] = '(' . rtrim(str_repeat('?, ', $columnCount), ', ') . ')';
+            $args = array_merge($args, $value);
+        }
+
+        $this->processed['query_string'] = 'INSERT INTO `' . $this->table
+            . '` (' . implode(', ', $cols) . ') VALUES '
+            . implode(', ', $exprList);
+        $this->processed['args'] = $args;
+    }
+
     protected function processWheres()
     {
         if (empty($this->wheres) || !is_array($this->wheres)) {
@@ -269,10 +320,13 @@ class Query implements QueryInterface
             if (is_array($value)) {
                 if ($value[0] === 'IN') {
                     if (!is_array($value[1])) {
-                        throw new \InvalidArgumentException('gsql: the value of IN operator should be an array');
+                        throw new \InvalidArgumentException(
+                            'gsql: the value of IN operator should be an array'
+                        );
                     }
                     $vLen = count($value[1]);
-                    $expr .= '`' . $column . '` IN (' . ltrim(str_repeat(', ?', $vLen), ', ') . ')';
+                    $expr .= '`' . $column. '` IN ('
+                        . ltrim(str_repeat(', ?', $vLen), ', ') . ')';
                     $args = array_merge($args, $value[1]);
                 } else {
                     $expr .= '`' . $column . '` ' . $value[0] . ' ?';

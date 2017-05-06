@@ -244,4 +244,38 @@ class SqlTest extends PHPUnit_Framework_TestCase
         );
         $this->assertEmpty($selectResult);
     }
+
+    public function testBulkInsert()
+    {
+        $db = $this->createDB();
+        $nowUnix = time();
+        $q = (new Query())
+            ->table('user')
+            ->bulkInsert(
+                [
+                    'email',
+                    'name',
+                    'updated_at',
+                    'created_at'
+                ],
+                [
+                    [
+                        $this->randomEmail(),
+                        '',
+                        $nowUnix,
+                        $nowUnix,
+                    ],
+                    [
+                        $this->randomEmail(),
+                        '',
+                        $nowUnix,
+                        $nowUnix,
+                    ]
+                ]
+            );
+
+        $result = $db->execWithoutReturningRows($q);
+        $this->assertNotEmpty($result['last_insert_id']);
+        $this->assertEquals(2, $result['row_count']);
+    }
 }
