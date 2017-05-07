@@ -8,13 +8,15 @@
 namespace Rapkg\Model;
 
 
+use Rapkg\Sql\DB;
 use Rapkg\Sql\Query;
+use Rapkg\Sql\QueryInterface;
 use Rapkg\Config\ConfigInterface;
 
 abstract class Table
 {
     /**
-     * @var Database
+     * @var DB
      */
     protected $db;
 
@@ -23,10 +25,10 @@ abstract class Table
      */
     private $tableName;
 
-    public function __construct()
+    public function __construct($tableName)
     {
-        $this->db = Database::getInstance($this->dbConfig());
-        $this->tableName = $this->tableName();
+        $this->tableName = $tableName;
+        $this->db = Manager::db($this->dbConfig());
     }
 
     /**
@@ -37,19 +39,27 @@ abstract class Table
     /**
      * @return string
      */
-    abstract protected function tableName();
+    public function getTableName()
+    {
+        return $this->tableName;
+    }
 
     public function select(
         array $columns,
         array $wheres = [],
+        array $orders = [],
         array $limit = []
     )
     {
+        $offset = isset($limit[0]) ? $limit[0] : 0;
+        $rowCount = isset($limit[1]) ? $limit[1] : 0;
+
         $q = (new Query())
             ->table($this->tableName)
             ->select($columns)
             ->where($wheres)
-            ->limit($limit[0], $limit[1]);
+            ->orderBy($orders)
+            ->limit($offset, $rowCount);
 
         return $this->db->execReturningRows($q);
     }
@@ -68,11 +78,30 @@ abstract class Table
         return $result['last_insert_id'];
     }
 
-    public function update(array $values, array $wheres = [])
+    public function bulkInsert(array $columns, array $values)
     {
         $q = (new Query())
             ->table($this->tableName)
+            ->bulkInsert($columns, $values);
+
+        return $this->db->execWithoutReturningRows($q);
+    }
+
+    public function update(
+        array $values,
+        array $wheres = [],
+        array $orders = [],
+        array $limit = []
+    )
+    {
+        $offset = isset($limit[0]) ? $limit[0] : 0;
+        $rowCount = isset($limit[1]) ? $limit[1] : 0;
+
+        $q = (new Query())
+            ->table($this->tableName)
             ->where($wheres)
+            ->orderBy($orders)
+            ->limit($offset, $rowCount)
             ->update($values);
 
         $result = $this->db->execWithoutReturningRows($q);
@@ -83,11 +112,16 @@ abstract class Table
         return $result['row_count'];
     }
 
-    public function delete(array $wheres)
+    public function delete(array $wheres, array $orders = [], array $limit = [])
     {
+        $offset = isset($limit[0]) ? $limit[0] : 0;
+        $rowCount = isset($limit[1]) ? $limit[1] : 0;
+
         $q = (new Query())
             ->table($this->tableName)
             ->where($wheres)
+            ->orderBy($orders)
+            ->limit($offset, $rowCount)
             ->delete();
 
         $result = $this->db->execWithoutReturningRows($q);
@@ -96,5 +130,15 @@ abstract class Table
         }
 
         return $result['row_count'];
+    }
+
+    protected function execReturningRows(QueryInterface $query)
+    {
+        return $this->db->execReturningRows($query);
+    }
+
+    protected function execWithoutReturningRows(QueryInterface $query)
+    {
+        return $this->db->execWithoutReturningRows($query);
     }
 }

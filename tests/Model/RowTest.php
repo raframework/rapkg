@@ -54,16 +54,9 @@ class UserTable extends Table
         self::COL_CREATED_AT,
     ];
 
-    public function get($id)
+    public function __construct()
     {
-        $result = $this->select(
-            $this->selectColumns, [self::COL_ID => $id], [0, 1]
-        );
-        if ($result) {
-            return $result[0];
-        }
-
-        return $result;
+        parent::__construct('user');
     }
 
     protected function dbConfig()
@@ -71,20 +64,16 @@ class UserTable extends Table
         return new DBConfig('test_gsql');
     }
 
-    public function tableName()
+    public function get($id)
     {
-        return 'user';
-    }
-
-    private static $instance;
-
-    public static function getInstance()
-    {
-        if (!self::$instance) {
-            self::$instance = new self();
+        $result = $this->select(
+            $this->selectColumns, [self::COL_ID => $id], [], [0, 1]
+        );
+        if ($result) {
+            return $result[0];
         }
 
-        return self::$instance;
+        return $result;
     }
 }
 
@@ -93,13 +82,13 @@ class UserRow extends Row
     /**
      * @var UserTable
      */
-    private static $table;
+    private $table;
 
     private $id;
 
     public function __construct($id)
     {
-        self::$table = UserTable::getInstance();
+        $this->table = new UserTable();
 
         if (empty($id)) {
             throw new \InvalidArgumentException('Invalid argument id');
@@ -109,12 +98,12 @@ class UserRow extends Row
 
     protected function cacheKey()
     {
-        return self::$table->tableName() . $this->id;
+        return $this->table->getTableName() . $this->id;
     }
 
     public static function create($values = [])
     {
-        $id = UserTable::getInstance()->insert($values);
+        $id = (new UserTable())->insert($values);
         if ($id) {
             return new UserRow($id);
         }
@@ -129,17 +118,17 @@ class UserRow extends Row
 
     public function get()
     {
-        return self::$table->get($this->id);
+        return $this->table->get($this->id);
     }
 
     public function update($values)
     {
-        return self::$table->update($values, ['id' => $this->id]);
+        return $this->table->update($values, ['id' => $this->id]);
     }
 
     public function delete()
     {
-        return self::$table->delete(['id' => $this->id]);
+        return $this->table->delete(['id' => $this->id]);
     }
 }
 
