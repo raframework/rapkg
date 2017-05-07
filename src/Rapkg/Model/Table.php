@@ -44,8 +44,15 @@ abstract class Table
         return $this->tableName;
     }
 
+    /**
+     * @param array|string $columns
+     * @param array $wheres
+     * @param array $orders
+     * @param array $limit
+     * @return array|bool
+     */
     public function select(
-        array $columns,
+        $columns,
         array $wheres = [],
         array $orders = [],
         array $limit = []
@@ -62,6 +69,42 @@ abstract class Table
             ->limit($offset, $rowCount);
 
         return $this->db->execReturningRows($q);
+    }
+
+    /**
+     * @param array|string $columns
+     * @param array $wheres
+     * @param array $orders
+     * @return array|bool|mixed|null
+     */
+    public function first(
+        $columns,
+        array $wheres = [],
+        array $orders = []
+    )
+    {
+        $result = $this->select($columns, $wheres, $orders, [0, 1]);
+
+        // Failure
+        if ($result === false) {
+            return $result;
+        }
+
+        return isset($result[0]) ? $result[0] : null;
+    }
+
+    public function count(array $wheres)
+    {
+        $result = $this->select('count(*) AS `count`', $wheres);
+        if ($result === false) {
+            return false;
+        }
+
+        if (isset($result[0]['count'])) {
+            return $result[0]['count'];
+        }
+
+        return false;
     }
 
     public function insert(array $values)

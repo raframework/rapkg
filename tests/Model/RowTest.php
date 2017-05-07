@@ -130,6 +130,11 @@ class UserRow extends Row
     {
         return $this->table->delete(['id' => $this->id]);
     }
+
+    public static function count()
+    {
+        return (new UserTable())->count([]);
+    }
 }
 
 class RowTest extends \PHPUnit_Framework_TestCase
@@ -200,5 +205,10 @@ class RowTest extends \PHPUnit_Framework_TestCase
     {
         return microtime(true) . mt_rand(10000, 99999)
             . '@gsql.com';
+    }
+
+    public function testCount()
+    {
+        $this->assertTrue(UserRow::count() > 0);
     }
 }

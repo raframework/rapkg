@@ -278,4 +278,16 @@ class SqlTest extends PHPUnit_Framework_TestCase
         $this->assertNotEmpty($result['last_insert_id']);
         $this->assertEquals(2, $result['row_count']);
     }
+
+    public function testSelectString()
+    {
+        $db = $this->createDB();
+        $q = (new Query())
+            ->table('user')
+            ->select('count(*) AS `count`');
+
+        $result = $db->execReturningRows($q);
+        $this->assertNotEmpty($result);
+        $this->assertTrue($result[0]['count'] > 0);
+    }
 }

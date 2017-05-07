@@ -23,7 +23,10 @@ class Query implements QueryInterface
     protected $orders = [];
     protected $offset = 0;
     protected $rowCount = 0;
-    protected $columns = [];
+    /**
+     * @var array|string
+     */
+    protected $columns;
     protected $values = [];
 
     protected $isProcessed = false;
@@ -45,7 +48,7 @@ class Query implements QueryInterface
         return $this;
     }
 
-    public function where($wheres)
+    public function where(array $wheres)
     {
         $this->wheres = $wheres;
 
@@ -72,14 +75,16 @@ class Query implements QueryInterface
     }
 
     /**
-     * @param array $columns
+     * @param array|string $columns
      * @throws \InvalidArgumentException
      * @return $this
      */
-    public function select(array $columns)
+    public function select($columns)
     {
         if (empty($columns)) {
-            throw new \InvalidArgumentException('Query->select() method requires at least 1 column, got 0');
+            throw new \InvalidArgumentException(
+                'Query->select() method requires a not-empty argument `$columns`.'
+            );
         }
 
         $this->action = self::ACTION_SELECT;
@@ -96,7 +101,7 @@ class Query implements QueryInterface
     public function insert(array $values)
     {
         if (empty($values)) {
-            throw new \InvalidArgumentException('Query->insert() method requires at least 1 value, got 0');
+            throw new \InvalidArgumentException('Query->insert() method requires at least 1 value, got 0.');
         }
 
         $this->action = self::ACTION_INSERT;
@@ -109,12 +114,12 @@ class Query implements QueryInterface
     {
         if (empty($columns)) {
             throw new \InvalidArgumentException(
-                'Query->bulkInsert() method requires at least 1 column, got 0'
+                'Query->bulkInsert() method requires at least 1 column, got 0.'
             );
         }
         if (empty($values)) {
             throw new \InvalidArgumentException(
-                'Query->bulkInsert() method requires at least 1 value, got 0'
+                'Query->bulkInsert() method requires at least 1 value, got 0.'
             );
         }
 
@@ -133,7 +138,9 @@ class Query implements QueryInterface
     public function update(array $values)
     {
         if (empty($values)) {
-            throw new \InvalidArgumentException('Query->update() method requires at least 1 value, got 0');
+            throw new \InvalidArgumentException(
+                'Query->update() method requires at least 1 value, got 0.'
+            );
         }
 
         $this->action = self::ACTION_UPDATE;
@@ -191,7 +198,7 @@ class Query implements QueryInterface
             default:
                 throw new \RuntimeException(
                     'gsql: you must call one of these methods: '
-                    . 'Query->[select(), insert(), update(), delete()] first'
+                    . 'Query->[select(), insert(), update(), delete()] first.'
                 );
         }
 
@@ -200,15 +207,20 @@ class Query implements QueryInterface
 
     protected function processSelect()
     {
-        $columns = [];
-        foreach ($this->columns as $column) {
-            $columns[] = '`' . $column . '`';
+        if (is_array($this->columns)) {
+            $columns = [];
+            foreach ($this->columns as $column) {
+                $columns[] = '`' . $column . '`';
+            }
+            $select = implode(', ', $columns);
+        } else {
+            $select = $this->columns;
         }
 
         $this->processWheres();
         $this->processOrders();
 
-        $queryString = sprintf('SELECT %s FROM %s', implode(', ', $columns), $this->table);
+        $queryString = sprintf('SELECT %s FROM %s', $select, $this->table);
         if ($this->processed['where_expr'] != '') {
             $queryString .= ' WHERE ' . $this->processed['where_expr'];
         }
