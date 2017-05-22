@@ -34,4 +34,14 @@ abstract class AbstractPropertyFactory
 
         return $obj;
     }
+
+    public function __set($name, $value)
+    {
+        throw new \RuntimeException('Not allowed to set property');
+    }
+
+    public function __isset($name)
+    {
+        return isset($this->propertyContainer[$name]);
+    }
 }
