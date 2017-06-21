@@ -14,7 +14,7 @@ class ListAll implements CommandInterface
 {
     public function help()
     {
-        return "Command users/list_all help";
+        return 'Command users/list_all help';
     }
 
     public function run(array $args)
@@ -26,6 +26,6 @@ class ListAll implements CommandInterface
 
     public function synopsis()
     {
-        return "Command users/list_all synopsis";
+        return 'Command users/list_all synopsis';
     }
 }

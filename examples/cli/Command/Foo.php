@@ -14,7 +14,7 @@ class Foo implements CommandInterface
 {
     public function help()
     {
-        return "Command foo help";
+        return 'Command foo help';
     }
 
     public function run(array $args)
@@ -28,6 +28,6 @@ class Foo implements CommandInterface
 
     public function synopsis()
     {
-        return "Command foo synopsis";
+        return 'Command foo synopsis';
     }
 }

@@ -5,9 +5,11 @@
  * Time: 15:38
  */
 
-require "../../vendor/autoload.php";
-require "./Command/User/ListAll.php";
-require "./Command/Foo.php";
+ini_set('display_errors', 'on');
+
+require __DIR__ . '/../../vendor/autoload.php';
+require __DIR__ . '/Command/User/ListAll.php';
+require __DIR__ . '/Command/Foo.php';
 
 use Rapkg\Cli;
 
