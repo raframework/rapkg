@@ -65,7 +65,9 @@ class Router
 
         $obj = new $commandClassName();
         if (!$obj instanceof CommandInterface) {
-            throw new \RuntimeException("Class '{$commandClassName}' must implement '" . CommandInterface::class . "'");
+            throw new \RuntimeException(
+                "Class '{$commandClassName}' must implement '" . CommandInterface::class . "'"
+            );
         }
 
         $this->commandClassName = $commandClassName;
