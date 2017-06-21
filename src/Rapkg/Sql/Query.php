@@ -41,6 +41,10 @@ class Query implements QueryInterface
         'args' => [],
     ];
 
+    /**
+     * @param $table
+     * @return $this
+     */
     public function table($table)
     {
         $this->table = $table;
@@ -48,6 +52,10 @@ class Query implements QueryInterface
         return $this;
     }
 
+    /**
+     * @param array $wheres
+     * @return $this
+     */
     public function where(array $wheres)
     {
         $this->wheres = $wheres;
@@ -57,7 +65,7 @@ class Query implements QueryInterface
 
     /**
      * @param array $orders
-     * @return Query
+     * @return $this
      */
     public function orderBy(array $orders)
     {
@@ -66,6 +74,11 @@ class Query implements QueryInterface
         return $this;
     }
 
+    /**
+     * @param $offset
+     * @param $rowCount
+     * @return $this
+     */
     public function limit($offset, $rowCount)
     {
         $this->offset = $offset;

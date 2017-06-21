@@ -12,7 +12,7 @@ class Router
 {
     const DEFAULT_COMMAND_NAMESPACE_PREFIX = "Command\\";
 
-    private $commandNamespacePrefix = '';
+    private $commandNamespacePrefix;
 
     /**
      * @var array
@@ -37,7 +37,7 @@ class Router
 
     public function match($command)
     {
-        if (!in_array($command, $this->commands)) {
+        if (!in_array($command, $this->commands, true)) {
             throw new \InvalidArgumentException("Command '{$command}' not implemented");
         }
 
