@@ -10,10 +10,10 @@ namespace Rapkg\Sql;
 
 class RawQuery implements QueryInterface
 {
-    private $queryString = '';
-    private $args = [];
+    private $queryString;
+    private $args;
 
-    public function __construct($queryString, $args = [])
+    public function __construct($queryString, array $args = [])
     {
         $this->queryString = $queryString;
         $this->args = $args;
