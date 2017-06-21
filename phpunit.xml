@@ -3,8 +3,17 @@
          bootstrap="tests/bootstrap.php"
          color="always">
     <testsuites>
-        <testsuite name="validation">
-            <directory>./tests/Validation/</directory>
+        <testsuite name="config">
+            <directory>./tests/Config/</directory>
+        </testsuite>
+        <testsuite name="design">
+            <directory>./tests/Design/</directory>
+        </testsuite>
+        <testsuite name="log">
+            <directory>./tests/Log/</directory>
+        </testsuite>
+        <testsuite name="Model">
+            <directory>./tests/Model/</directory>
         </testsuite>
         <testsuite name="retry">
             <directory>./tests/Retry/</directory>
@@ -12,12 +21,8 @@
         <testsuite name="sql">
             <directory>./tests/Sql/</directory>
         </testsuite>
-        <testsuite name="Model">
-            <directory>./tests/Model/</directory>
+        <testsuite name="validation">
+            <directory>./tests/Validation/</directory>
         </testsuite>
-        <testsuite name="Design">
-            <directory>./tests/Design/</directory>
-        </testsuite>
-
     </testsuites>
 </phpunit>

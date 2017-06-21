@@ -25,8 +25,6 @@ class LogTest extends \PHPUnit_Framework_TestCase
         $result = file_get_contents($testFilePath);
         unlink($testFilePath);
 
-        var_dump($result);
-
         $this->assertContains('foo', $result);
     }
 }
