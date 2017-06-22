@@ -10,9 +10,12 @@ namespace Rapkg\Cli;
 
 class Router
 {
-    const DEFAULT_COMMAND_NAMESPACE_PREFIX = "Command\\";
     const DEFAULT_COMMAND = 'defaults';
+    const DEFAULT_COMMAND_NAMESPACE_PREFIX = "Command\\";
 
+    /**
+     * @var string
+     */
     private $commandNamespacePrefix;
 
     /**
