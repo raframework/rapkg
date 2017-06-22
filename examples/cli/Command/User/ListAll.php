@@ -26,6 +26,6 @@ class ListAll implements CommandInterface
 
     public function synopsis()
     {
-        return 'Command users/list_all synopsis';
+        return 'List all users';
     }
 }

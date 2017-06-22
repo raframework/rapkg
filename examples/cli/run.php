@@ -8,8 +8,10 @@
 ini_set('display_errors', 'on');
 
 require __DIR__ . '/../../vendor/autoload.php';
-require __DIR__ . '/Command/User/ListAll.php';
+
 require __DIR__ . '/Command/Foo.php';
+require __DIR__ . '/Command/Defaults.php';
+require __DIR__ . '/Command/User/ListAll.php';
 
 use Rapkg\Cli;
 

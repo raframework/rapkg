@@ -28,6 +28,6 @@ class Foo implements CommandInterface
 
     public function synopsis()
     {
-        return 'Command foo synopsis';
+        return 'Foo command';
     }
 }

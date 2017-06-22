@@ -37,6 +37,7 @@ class Defaults implements CommandInterface
      */
     public function run(array $args)
     {
+        echo "Command \"defaults\" command is running.\n";
         return 0;
     }
 

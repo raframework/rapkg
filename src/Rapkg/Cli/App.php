@@ -59,7 +59,7 @@ class App
      */
     public function run(array $args)
     {
-        $command = $args[1];
+        $command = (string)$args[1];
         $this->router->match($command);
         $args = array_slice($args, 2);
 

@@ -18,7 +18,7 @@ class Router
     /**
      * @var array
      */
-    private $commands = [];
+    private $commands;
 
     /**
      * @var string
@@ -30,6 +30,8 @@ class Router
      */
     private $commandClassObj;
 
+    private $defaultCommand = self::DEFAULT_COMMAND;
+
     public function __construct($commandNamespacePrefix, array $commands)
     {
         $this->commandNamespacePrefix = $commandNamespacePrefix;
@@ -39,15 +41,27 @@ class Router
     public function match($command)
     {
         if ($command === '') {
-            $command = self::DEFAULT_COMMAND;
+            $command = $this->getDefaultCommand();
+            $commandClassName = $this->resolveCommandClassName($command);
+            if (!class_exists($commandClassName)) {
+                return;
+            }
+        } else {
+            if (!in_array($command, $this->commands, true)) {
+                return;
+            }
+            $commandClassName = $this->resolveCommandClassName($command);
+            if (!class_exists($commandClassName)) {
+                throw new \RuntimeException("Class '{$commandClassName}' is not found");
+            }
         }
-        if (!in_array($command, $this->commands, true)) {
-            throw new \InvalidArgumentException("Command '{$command}' not implemented");
-        }
-
-        $commandClassName = $this->resolveCommandClassName($command);
 
         $this->withCommandClassObj($commandClassName);
+    }
+
+    private function getDefaultCommand()
+    {
+        return $this->defaultCommand;
     }
 
     private function resolveCommandClassName($command)
@@ -67,12 +81,13 @@ class Router
         return $this->commandNamespacePrefix . implode('\\', $handledCmdSegments);
     }
 
-    private function withCommandClassObj($commandClassName)
+    /**
+     * @param $commandClassName
+     * @throws \RuntimeException
+     * @return CommandInterface
+     */
+    private function createCommandClassObj($commandClassName)
     {
-        if (!class_exists($commandClassName)) {
-            throw new \RuntimeException("Class '{$commandClassName}' is not found");
-        }
-
         $obj = new $commandClassName();
         if (!$obj instanceof CommandInterface) {
             throw new \RuntimeException(
@@ -80,6 +95,12 @@ class Router
             );
         }
 
+        return $obj;
+    }
+
+    private function withCommandClassObj($commandClassName)
+    {
+        $obj = $this->createCommandClassObj($commandClassName);
         $this->commandClassName = $commandClassName;
         $this->commandClassObj = $obj;
     }
@@ -95,6 +116,37 @@ class Router
 
     public function executeDefaultCommand($args)
     {
+        $this->help();
+
         return 0;
+    }
+
+    private function help()
+    {
+        echo "Usage: cli [--version] [--help] <command> [<args>]\n";
+        echo "\n";
+        echo "Available commands are:\n";
+
+        if (empty($this->commands)) {
+            return;
+        }
+
+        $commandSynopsises = [];
+        $commandMaxLength = 0;
+        foreach ($this->commands as $command) {
+            $commandClassName = $this->resolveCommandClassName($command);
+            $obj = $this->createCommandClassObj($commandClassName);
+            $commandSynopsises[$command] = $obj->synopsis();
+            $len = strlen($command);
+            if ($len > $commandMaxLength) {
+                $commandMaxLength = $len;
+            }
+        }
+
+        foreach ($commandSynopsises as $command => $synopsis) {
+            echo '    ' . $command
+                . str_repeat(' ', $commandMaxLength + 4 - strlen($command))
+                . $synopsis . "\n";
+        }
     }
 }
