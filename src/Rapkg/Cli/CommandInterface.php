@@ -10,6 +10,7 @@ namespace Rapkg\Cli;
 
 interface CommandInterface
 {
+
     /**
      * help should return long-form help text that includes the command-line
      * usage, a brief few sentences explaining the function of the command,
@@ -23,7 +24,7 @@ interface CommandInterface
      * run should run the actual command with the given App instance and
      * command-line arguments. It should return the exit status when it is
      * finished.
-
+     *
      * There are a handful of special exit codes this can return documented
      * above that change behavior.
      *
