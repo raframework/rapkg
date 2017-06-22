@@ -42,10 +42,10 @@ class App
     private function parseConfig(array $config)
     {
         if (!isset($config['command_namespace_prefix']) || !is_string($config['command_namespace_prefix'])) {
-            throw new \InvalidArgumentException('Invalid config command_namespace_prefix');
+            throw new \InvalidArgumentException('Invalid config field "command_namespace_prefix", a not-empty string is required.');
         }
         if (!isset($config['commands']) || !is_array($config['commands']) || empty($config['commands'])) {
-            throw new \InvalidArgumentException('Invalid config commands');
+            throw new \InvalidArgumentException('Invalid config field "commands", a not-empty array is required.');
         }
 
         $this->config = $config;

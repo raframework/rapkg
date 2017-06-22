@@ -11,6 +11,7 @@ namespace Rapkg\Cli;
 class Router
 {
     const DEFAULT_COMMAND_NAMESPACE_PREFIX = "Command\\";
+    const DEFAULT_COMMAND = 'defaults';
 
     private $commandNamespacePrefix;
 
@@ -37,10 +38,20 @@ class Router
 
     public function match($command)
     {
+        if ($command === '') {
+            $command = self::DEFAULT_COMMAND;
+        }
         if (!in_array($command, $this->commands, true)) {
             throw new \InvalidArgumentException("Command '{$command}' not implemented");
         }
 
+        $commandClassName = $this->resolveCommandClassName($command);
+
+        $this->withCommandClassObj($commandClassName);
+    }
+
+    private function resolveCommandClassName($command)
+    {
         $cmdSegments = explode('/', $command);
 
         $handledCmdSegments = [];
@@ -52,9 +63,8 @@ class Router
             }
             $handledCmdSegments[] = implode('', $handledWords);
         }
-        $commandClassName = $this->commandNamespacePrefix . implode('\\', $handledCmdSegments);
 
-        $this->withCommandClassObj($commandClassName);
+        return $this->commandNamespacePrefix . implode('\\', $handledCmdSegments);
     }
 
     private function withCommandClassObj($commandClassName)
@@ -76,6 +86,15 @@ class Router
 
     public function executeCommand(array $args)
     {
-        return $this->commandClassObj->run($args);
+        if ($this->commandClassObj) {
+            return $this->commandClassObj->run($args);
+        }
+
+        return $this->executeDefaultCommand($args);
+    }
+
+    public function executeDefaultCommand($args)
+    {
+        return 0;
     }
 }
