@@ -1,2 +1,2 @@
 # rapkg
-The raframework packages.
+A few sweet packages for the PHP language.
