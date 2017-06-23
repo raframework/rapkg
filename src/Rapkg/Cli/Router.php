@@ -114,10 +114,10 @@ class Router
             return $this->commandClassObj->run($args);
         }
 
-        return $this->executeDefaultCommand($args);
+        return $this->executeSysDefault($args);
     }
 
-    public function executeDefaultCommand($args)
+    public function executeSysDefault($args)
     {
         $this->help();
 
