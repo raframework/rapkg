@@ -47,14 +47,14 @@ abstract class Table
 
     /**
      * @param array|string $columns
-     * @param array $wheres
+     * @param array|string $wheres
      * @param array $orders
      * @param array $limit
      * @return array|bool
      */
     public function select(
         $columns,
-        array $wheres = [],
+        $wheres = [],
         array $orders = [],
         array $limit = []
     )
@@ -74,13 +74,13 @@ abstract class Table
 
     /**
      * @param array|string $columns
-     * @param array $wheres
+     * @param array|string $wheres
      * @param array $orders
      * @return array|bool|mixed|null
      */
     public function first(
         $columns,
-        array $wheres = [],
+        $wheres = [],
         array $orders = []
     )
     {
@@ -94,7 +94,11 @@ abstract class Table
         return isset($result[0]) ? $result[0] : null;
     }
 
-    public function count(array $wheres)
+    /**
+     * @param array|string $wheres
+     * @return bool
+     */
+    public function count($wheres)
     {
         $result = $this->select('count(*) AS `count`', $wheres);
         if ($result === false) {
@@ -131,9 +135,16 @@ abstract class Table
         return $this->db->execWithoutReturningRows($q);
     }
 
+    /**
+     * @param array $values
+     * @param array|string $wheres
+     * @param array $orders
+     * @param array $limit
+     * @return array|bool
+     */
     public function update(
         array $values,
-        array $wheres = [],
+        $wheres = [],
         array $orders = [],
         array $limit = []
     )
@@ -156,7 +167,13 @@ abstract class Table
         return $result['row_count'];
     }
 
-    public function delete(array $wheres, array $orders = [], array $limit = [])
+    /**
+     * @param array|string $wheres
+     * @param array $orders
+     * @param array $limit
+     * @return array|bool
+     */
+    public function delete($wheres, array $orders = [], array $limit = [])
     {
         $offset = isset($limit[0]) ? $limit[0] : 0;
         $rowCount = isset($limit[1]) ? $limit[1] : 0;
