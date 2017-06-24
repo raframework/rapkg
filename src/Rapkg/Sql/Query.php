@@ -53,10 +53,10 @@ class Query implements QueryInterface
     }
 
     /**
-     * @param array $wheres
+     * @param array|string $wheres
      * @return $this
      */
-    public function where(array $wheres)
+    public function where($wheres)
     {
         $this->wheres = $wheres;
 
@@ -330,7 +330,13 @@ class Query implements QueryInterface
 
     protected function processWheres()
     {
-        if (empty($this->wheres) || !is_array($this->wheres)) {
+        if (empty($this->wheres) || (!is_array($this->wheres) && !is_string($this->wheres))) {
+            return;
+        }
+
+        if (is_string($this->wheres)) {
+            $this->processed['where_expr'] = $this->wheres;
+            $this->processed['where_args'] = [];
             return;
         }
 

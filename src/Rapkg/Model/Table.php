@@ -10,6 +10,7 @@ namespace Rapkg\Model;
 
 use Rapkg\Sql\DB;
 use Rapkg\Sql\Query;
+use Rapkg\Sql\RawQuery;
 use Rapkg\Sql\QueryInterface;
 use Rapkg\Config\ConfigInterface;
 
@@ -180,8 +181,18 @@ abstract class Table
         return $this->db->execReturningRows($query);
     }
 
+    protected function execRawReturningRows($queryString, array $args = [])
+    {
+        return $this->execReturningRows(new RawQuery($queryString, $args));
+    }
+
     protected function execWithoutReturningRows(QueryInterface $query)
     {
         return $this->db->execWithoutReturningRows($query);
+    }
+
+    protected function execRawWithoutReturningRows($queryString, array $args = [])
+    {
+        return $this->db->execWithoutReturningRows(new RawQuery($queryString, $args));
     }
 }

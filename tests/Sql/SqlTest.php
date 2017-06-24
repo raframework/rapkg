@@ -290,4 +290,26 @@ class SqlTest extends PHPUnit_Framework_TestCase
         $this->assertNotEmpty($result);
         $this->assertTrue($result[0]['count'] > 0);
     }
+
+    public function testWhereString()
+    {
+        $db = $this->createDB();
+        $q = (new Query())
+            ->table('user')
+            ->select([
+                'id',
+                'email',
+                'name',
+                'status',
+                'updated_at',
+                'created_at'
+            ])
+            ->where("`id` < '100000' and `status` = '0'")
+            ->orderBy([
+                'id' => 'DESC',
+            ])->limit(0, 10);
+
+        $result = $db->execReturningRows($q);
+        $this->assertNotEmpty($result);
+    }
 }
