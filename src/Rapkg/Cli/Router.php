@@ -69,19 +69,12 @@ class Router
 
     private function resolveCommandClassName($command)
     {
-        $cmdSegments = explode('/', $command);
-
-        $handledCmdSegments = [];
-        foreach ($cmdSegments as $cmdSegment) {
-            $words = explode('_', $cmdSegment);
-            $handledWords = [];
-            foreach ($words as $word) {
-                $handledWords[] = ucfirst($word);
-            }
-            $handledCmdSegments[] = implode('', $handledWords);
-        }
-
-        return $this->commandNamespacePrefix . implode('\\', $handledCmdSegments);
+        return $this->commandNamespacePrefix
+            . str_replace(
+                '/',
+                '\\',
+                str_replace('_', '', ucwords($command, '_/'))
+            );
     }
 
     /**
