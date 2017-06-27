@@ -139,6 +139,23 @@ class SqlTest extends PHPUnit_Framework_TestCase
         $this->assertNotEmpty($result['row_count']);
     }
 
+    public function testUpdateStringValues()
+    {
+        $db = $this->createDB();
+        $q = (new Query())
+            ->table('user')
+            ->update(sprintf("`status` = '%d', `updated_at` = '%d'", mt_rand(2, 3), time()))
+            ->where([
+                'id' => ['>', 1],
+            ])
+            ->orderBy([
+                'id' => 'DESC',
+            ])->limit(0, 5);
+
+        $result = $db->execWithoutReturningRows($q);
+        $this->assertNotEmpty($result['row_count']);
+    }
+
 
     public function testRawQueryUpdate()
     {

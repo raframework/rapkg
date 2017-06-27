@@ -136,14 +136,14 @@ abstract class Table
     }
 
     /**
-     * @param array $values
+     * @param array|string $values
      * @param array|string $wheres
      * @param array $orders
      * @param array $limit
      * @return array|bool
      */
     public function update(
-        array $values,
+        $values,
         $wheres = [],
         array $orders = [],
         array $limit = []

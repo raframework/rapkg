@@ -180,6 +180,21 @@ class RowTest extends \PHPUnit_Framework_TestCase
      * @param UserRow $userRow
      * @return UserRow
      */
+    public function testUpdateStringValues(UserRow $userRow)
+    {
+        $result = $userRow->update(
+            sprintf("`status` = '%d', `updated_at` = '%d'", mt_rand(2, 3), time())
+        );
+        $this->assertNotEmpty($result);
+
+        return $userRow;
+    }
+
+    /**
+     * @depends testCreate
+     * @param UserRow $userRow
+     * @return UserRow
+     */
     public function testGet(UserRow $userRow)
     {
         $result = $userRow->get();

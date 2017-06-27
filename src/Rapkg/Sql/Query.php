@@ -144,11 +144,11 @@ class Query implements QueryInterface
     }
 
     /**
-     * @param array $values
+     * @param array|string $values
      * @throws \InvalidArgumentException
      * @return $this
      */
-    public function update(array $values)
+    public function update($values)
     {
         if (empty($values)) {
             throw new \InvalidArgumentException(
@@ -234,10 +234,10 @@ class Query implements QueryInterface
         $this->processOrders();
 
         $queryString = sprintf('SELECT %s FROM %s', $select, $this->table);
-        if ($this->processed['where_expr'] != '') {
+        if ($this->processed['where_expr'] !== '') {
             $queryString .= ' WHERE ' . $this->processed['where_expr'];
         }
-        if ($this->processed['order_expr'] != '') {
+        if ($this->processed['order_expr'] !== '') {
             $queryString .= ' ORDER BY ' . $this->processed['order_expr'];
         }
 
@@ -263,10 +263,10 @@ class Query implements QueryInterface
         $this->processWheres();
 
         $queryString = sprintf('UPDATE `%s` %s', $this->table, $this->processed['value_expr']);
-        if ($this->processed['where_expr'] != '') {
+        if ($this->processed['where_expr'] !== '') {
             $queryString .= ' WHERE ' . $this->processed['where_expr'];
         }
-        if ($this->processed['order_expr'] != '') {
+        if ($this->processed['order_expr'] !== '') {
             $queryString .= ' ORDER BY ' . $this->processed['order_expr'];
         }
 
@@ -288,10 +288,10 @@ class Query implements QueryInterface
         $this->processWheres();
 
         $queryString = 'DELETE FROM ' . $this->table;
-        if ($this->processed['where_expr'] != '') {
+        if ($this->processed['where_expr'] !== '') {
             $queryString .= ' WHERE ' . $this->processed['where_expr'];
         }
-        if ($this->processed['order_expr'] != '') {
+        if ($this->processed['order_expr'] !== '') {
             $queryString .= ' ORDER BY ' . $this->processed['order_expr'];
         }
         if ($this->rowCount > 0) {
@@ -395,7 +395,12 @@ class Query implements QueryInterface
 
     protected function processUpdateValues()
     {
-        if (empty($this->values) || !is_array($this->values)) {
+        if (empty($this->values) || (!is_array($this->values) && !is_string($this->values))) {
+            return;
+        }
+
+        if (is_string($this->values)) {
+            $this->processed['value_expr'] = 'SET ' . $this->values;
             return;
         }
 
