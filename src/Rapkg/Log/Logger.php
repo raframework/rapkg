@@ -111,7 +111,7 @@ class Logger extends AbstractLogger
             return;
         }
 
-        $this->write($message);
+        $this->write($message . "\n");
     }
 
     protected function write($message)
