@@ -427,7 +427,7 @@ class Validator
 
     protected function validateCnMobile($attribute, $value)
     {
-        if (preg_match('/^1[34578]\d{9}$/', $value)) {
+        if (preg_match('/^1[3456789]\d{9}$/', $value)) {
             return true;
         }
         return false;
